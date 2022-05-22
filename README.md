@@ -68,10 +68,14 @@ def erfinv_trans(train_df, c):
 ```
 
 标签的原始分布:
+<div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_ori.png" width="500" height="500">
+</div>
 
 标签逆误差函数转换后的分布:
+<div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_erfinv_trans.png" width="500" height="500">
+</div>
 
 ```
 使用的打分模型代码可直接运行，模型存至./model，结果存至./sub。
