@@ -242,3 +242,7 @@ rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LS
 >1. 其中1，2打分模型非常小，总计不超过10Mb;-->
 >2. 端到端模型单个模型400Mb左右，但任务中使用了5折训练，并在部分训练中(以_sig结尾的代码)分别保存了8个target的5折最优模型（即一次训练保存了40个模型文件），因此端到端的7次训练得到的模型文件总计70Gb左右；
 ```
+
+#### 参考文献
+[1] Li Z, Xi T, Deng J, et al. Gp-nas: Gaussian process based neural architecture search[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2020: 11933-11942.
+[2] Xu Y, Wang Y, Han K, et al. Renas: Relativistic evaluation of neural architecture search[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021: 4411-4420.
