@@ -29,6 +29,7 @@
 -|model
 -|loss
 -|fig
+-|ori
 1_cvpr_lgb_score_ranker.ipynb
 2_cvpr_paddle_superlinear_score_ranker.ipynb
 3_cvpr_ohe_2lstm_4logits_weight_kednall_tanh1_decoder.ipynb
@@ -249,6 +250,7 @@ rank loss 建模时将输入看作长度为37的序列, 模型结构基于 包�
 >注：
 >1. 其中1，2打分模型非常小，总计不超过10Mb;
 >2. 端到端模型单个模型90MB-450M不等，但任务中使用了5折训练，并在部分训练中(以_sig结尾的代码)分别保存了8个target的5折最优模型（即一次训练保存了40个模型文件），因此端到端虽然只进行了7次训练, 但8个目标的5折合计保存了210个模型文件,得到的模型文件总计70Gb左右;
+>3. 以上代码均为剔除了冗余, 无意义注释,修改了非顺序执行的复现代码, 原始代码及原始提交见./ori, 若需参考原始代码, 提前阅读./ori下的readme文件
 ```
 
 #### 参考文献
