@@ -244,5 +244,7 @@ rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LS
 ```
 
 #### 参考文献
+
 [1] Li Z, Xi T, Deng J, et al. Gp-nas: Gaussian process based neural architecture search[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2020: 11933-11942.
+
 [2] Xu Y, Wang Y, Han K, et al. Renas: Relativistic evaluation of neural architecture search[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021: 4411-4420.
