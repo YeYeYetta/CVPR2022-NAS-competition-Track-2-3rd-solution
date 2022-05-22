@@ -78,11 +78,11 @@ def erfinv_trans(train_df, c):
 </div>
 
 ```
-使用的打分模型代码可直接运行，模型存至./model，结果存至./sub。
 高斯分布下的LightGBM打分模型：
 1_cvpr_lgb_score_ranker.ipynb
 高斯分布下One-Hot,8目标同时建模的Super Linear打分模型：
 2_cvpr_paddle_superlinear_score_ranker.ipynb
+使用的打分模型代码可直接运行，模型存至./model，结果存至./sub。
 ```
 
 
@@ -117,6 +117,7 @@ kendall的计算过程如下：
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="1000" height="600">
 <div/>
     
+
 以tanh为例的soft kendall代码如下，
 
 ```python
@@ -190,6 +191,7 @@ rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LS
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model3.png" width="833" height="1097">
 <div/>
     
+
 ```
 结构3模型:
 3_cvpr_ohe_2lstm_4logits_weight_kednall_tanh1_decoder.ipynb
