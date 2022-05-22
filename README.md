@@ -30,7 +30,7 @@
 7_lstm2y_catall_pair_sig.ipynb
 8_lstm2y_catall_tanh1_sig.ipynb
 9_ohe_lstm2y_catall_tanh1_sig.ipynb
-readme.md
+README.md
 requirements.txt
 ```
 
@@ -55,9 +55,23 @@ requirements.txt
 #### 2.1.3 提升-超级打分模型
 任务中训练和预测的标签均为性能的rank等级，相邻标签间的距离均为1，可以看作均匀分布。但实际上，模型性能高低的距离并非等距，而是大部分模型性能差不多，少部分模型性能很好或很差，整体可看作高斯分布。因此使用逆误差函数(erfinv)将标签变换为高斯分布，使用变换后的取值进行打分回归模型的训练，则2.1.1及2.1.2中的打分模型均可到达0.793左右的分数。
 
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_ori.png" width="3000">
+```python
+# 使用逆误差函数将target转换为高斯分布
 
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_erfinv_trans.png" width="3000">
+from scipy.special import erfinv
+def erfinv_trans(train_df, c):
+    train_y = train_df[c]
+    mmin = np.min(train_y) + 1
+    mmax = np.max(train_y) + 1
+    train_y = np.sqrt(2) * erfinv(2 * (train_y + mmin) / (mmin + mmax) - 1)
+    train_df[c + '_trans_y'] = train_y
+```
+
+标签的原始分布:
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_ori.png" width="1500">
+
+标签逆误差函数转换后的分布:
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_erfinv_trans.png" width="1500">
 
 ```
 使用的打分模型代码可直接运行，模型存至./model，结果存至./sub。
@@ -83,19 +97,20 @@ kendall的计算过程如下：
 3. 再将第二个数字1依次与右边的8个数字进行比较，得到分数8；
 4. 以此类推，得到9个分数:7,8,7,2,5,4,1,0,1,总分35分；
 5. 如果所有的分数都为最大分数，9,8,7,6,5,4,3,2,1，则最大总分为45分；
-6. kendall = 实际得分/最大总分,即35/45 = 0.778;
+6. kendall = 实际得分/最大总分，即35/45 = 0.778;
 ```
 
 这个过程中的排序及计分过程均不可导，但排序操作可以仅针对真实标签，并不影响预测结果的可导性与反向传播，因此仅需解决计分过程的可导性。其中计分函数可以看作sign函数，比较结果>0 取1，比较结果<0 取-1，因此使用tanh，erf，sigmoid，softsign等类似的可导函对计分过程进行替换，便可以实现可导的soft kendall 
 
+不同soft函数及其梯度如下,相关代码在./fig/soft&grad.ipynb
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="3000">
 
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="3000">
 
-以tanh为例的soft kendall如下，不同soft函数及其梯度的可视化见./fig/soft&grad.ipynb
+以tanh为例的soft kendall代码如下，
 
 ```python
-# kendall的手动python实现
+# kendall的手动python实现, 将其中的sign变为tanh即可实现基于tanh的soft kendall
 def kendall(actuals, preds):
     sa = actuals.argsort()[0]
     tmp = preds.index_select(1, sa.int())[0]
@@ -103,30 +118,92 @@ def kendall(actuals, preds):
     score1 = score / sum(list(range(1, len(tmp))))
     return score1
 
-# 使用tanh的soft kendall
-def soft_kendall(actuals, preds):
-    sa = actuals.argsort()[0]
-    tmp = preds.index_select(1, sa.int())[0]
-    score = torch.cat([((tmp[i:] - tmp[i-1])).tanh() for i in range(1, tmp.shape[0])]).sum()
-    score1 = score / sum(list(range(1, len(tmp))))
-    return score1
-```
+# 下面是1-soft_kendall作为loss的示例代码,分别为torch版本以及paddle版本
 
-```
-./loss文件夹下列出了建模过程中使用过的所有loss
-其中基于tanh的soft kendall效果最好
-CVPRLoss:       使用1-pearson相关性作为loss;
-CVPRLoss1:      使用1-spearman rank相关性作为loss;
-CVPRLoss_tanh:  使用tanh改写的1-kendall rank相关性作为loss，for循环写法;
+# 使用tanh的soft kendall,torch版本
+class CVPRLoss_tanh(nn.Module):
+    # 1-soft_kendall tanh
+    def __call__(self, pred, y):
+        return 1-torch.cat(
+            [self.get_score(y[:,i].reshape(1,-1), 
+                           pred[:,i].reshape(1,-1)).reshape(1,-1) for i in range(y.shape[1])]
+        ).reshape(1, -1)
+    
+    def get_score(self, actuals, preds):
+        sa = actuals.argsort()[0]
+        tmp = preds.index_select(1, sa.int())[0]
+        score = torch.cat([((tmp[i:]-tmp[i-1])).tanh() for i in range(1, tmp.shape[0])]).sum()
+        score1 = score/sum(list(range(1,len(tmp))))
+        return score1
+
+# 使用tanh的soft kendall, paddle版本
+class CVPRLoss_tanh(nn.Layer):
+    # 1 - soft_kendall tanh
+    def __init__(self):
+        super(CVPRLoss_tanh, self).__init__()
+        
+    def forward(self, pred, y):
+        return 1-paddle.concat(
+            [self.get_score(y[:,i], pred[:,i]) for i in range(y.shape[1])]
+        )
+        
+    def get_score(self, actuals, preds):
+        sa = actuals.argsort()
+        tmp = preds.index_select(index=sa)
+        score = paddle.concat([((tmp[i:]-tmp[i-1])).tanh() for i in range(1, tmp.shape[0])]).sum()
+        score1 = score/sum(list(range(1,len(tmp))))
+        return score1
+
+./loss文件夹下提供了建模过程中曾使用到的loss
+其中基于tanh的矩阵版soft kendall性能最好
+CVPRLoss:  使用1-pearson相关性作为loss;
+CVPRLoss1: 使用1-spearman rank相关性作为loss;
+CVPRLoss_tanh: 使用tanh改写的1-kendall rank相关性作为loss;
+CVPRLoss_erf: 使用erf改写的1-kendall rank相关性作为loss;
+CVPRLoss_sigmoid: 使用sigmoid改写的1-kendall rank相关性作为loss;
+CVPRLoss_softsign: 使用softsign改写的1-kendall rank相关性作为loss;
 CVPRLoss_tanh1: 使用tanh改写的1-kendall rank相关性作为loss，矩阵写法;
 CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
 ```
 
 #### 2.2.2 模型结构
+rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LSTM 以及 transformer 编码器解码器, 具体使用了以下三种结构:
 
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model1.png" height="3000">
 
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model2.png" height="3000">
 
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model3.png" height="3000">
 
+```
+结构3模型:
+3_cvpr_ohe_2lstm_4logits_weight_kednall_tanh1_decoder.ipynb
+结构2模型:
+4_cvpr_transf_encoder_decoder_tanh.ipynb
+结构1模型:
+5_cvpr_lstm2y_catall_tanh.ipynb
+6_cvpr_lstm2y_catall_tanh_sig.ipynb
+7_lstm2y_catall_pair_sig.ipynb
+8_lstm2y_catall_tanh1_sig.ipynb
+9_ohe_lstm2y_catall_tanh1_sig.ipynb
+
+其中
+5_cvpr_lstm2y_catall_tanh.ipynb 使用 tanh soft kendall loss, 取8目标整体最优;
+6_cvpr_lstm2y_catall_tanh_sig.ipynb 使用 tanh soft kendall loss, 取8目标交叉验证时单目标最优;
+7_lstm2y_catall_pair_sig.ipynb 为 矩阵写法的tanh soft kendall loss,取8目标交叉验证时单目标最优;
+8_lstm2y_catall_tanh1_sig.ipynb 为 使用huawei-noah的pair loss,取8目标交叉验证时单目标最优;
+9_ohe_lstm2y_catall_tanh1_sig.ipynb 为 矩阵写法的tanh soft kendall loss,取8目标交叉验证时单目标最优, 输入为one-hot的序列, 500*37*93
+
+基于rank loss的各模型分数介于0.792-0.795不等
+```
+
+### 2.3 模型融合
+10_get_subf.ipynb 为模型融合部分, 最终的2个提交均使用上述2个思路,5种模型,9次训练得到的9个sub进行融合。
+区别在于第一个提交对各目标的最优模型权重更大, 第二个提交按 最优:rank_loss:打分 = 4:4:2 进行权重分配。
+
+打分模型最高可做到0.793+, 但融合中仅用于提高模型的差异性, 因此分配了更低的权重, 并且为了保证没有过度拟合榜单, 最终使用的打分模型并未参考榜单结果使用最高分模型, 而是提取了0.791+和0.792+的两个初始打分模型。
+
+最终的模型融合仅在最后一天进行了3次, 并未做大量数据试验, 不一定是最优权重。
 
 ## 使用方式
 ```
@@ -146,5 +223,5 @@ CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
 
 >注：
 >1. 其中1，2打分模型非常小，总计不超过10Mb;-->
->2. 端到端模型单个模型400Mb左右，但任务中使用了5折训练，并在部分代码中分别保存了8个target的5折最优模型（即一次训练保存了40个模型文件），因此模型文件总计70Gb左右；
+>2. 端到端模型单个模型400Mb左右，但任务中使用了5折训练，并在部分训练中(以_sig结尾的代码)分别保存了8个target的5折最优模型（即一次训练保存了40个模型文件），因此端到端的7次训练得到的模型文件总计70Gb左右；
 ```
