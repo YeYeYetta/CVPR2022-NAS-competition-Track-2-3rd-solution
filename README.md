@@ -110,11 +110,11 @@ kendall的计算过程如下：
 
 不同soft函数及其梯度如下,相关代码在./fig/soft&grad.ipynb
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="1000" height="600">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="800" height="480">
 </div>
     
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="1000" height="600">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="800" height="480">
 </div>
     
 
