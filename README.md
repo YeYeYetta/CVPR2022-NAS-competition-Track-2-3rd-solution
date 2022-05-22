@@ -54,13 +54,19 @@ requirements.txt
 
 #### 2.1.3 提升-超级打分模型
 任务中训练和预测的标签均为性能的rank等级，相邻标签间的距离均为1，可以看作均匀分布。但实际上，模型性能高低的距离并非等距，而是大部分模型性能差不多，少部分模型性能很好或很差，整体可看作高斯分布。因此使用逆误差函数(erfinv)将标签变换为高斯分布，使用变换后的取值进行打分回归模型的训练，则2.1.1及2.1.2中的打分模型均可到达0.793左右的分数。
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="3000">
 
-> 使用的打分模型如下, 代码可直接运行，模型存至./model，结果存至./sub。
-> 高斯分布下的LightGBM打分模型：
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_ori.png" width="3000">
+
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_erfinv_trans.png" width="3000">
+
+```
+使用的打分模型代码可直接运行，模型存至./model，结果存至./sub。
+高斯分布下的LightGBM打分模型：
 1_cvpr_lgb_score_ranker.ipynb
-> 高斯分布下One-Hot,8目标同时建模的Super Linear打分模型：
+高斯分布下One-Hot,8目标同时建模的Super Linear打分模型：
 2_cvpr_paddle_superlinear_score_ranker.ipynb
+```
+
 
 ### 2.2 Rank Loss端到端法
 本任务主要关心不同网络结构的性能高低，并不关心绝对取值，因此基于回归的打分法并不直接解决该问题，而深度学习的一大优势便是可以端到端学习，因此端到端的思路是将神经网络结构编码至高维空间，再直接解码为rank关系。
@@ -68,16 +74,25 @@ requirements.txt
 #### 2.2.1 rank loss设计
 rank关系是一类不可导的计算过程，评价任务性能的kendall也是其中之一，在本任务中将不可导的kendall设计为可导的形式尤为重要，我的解决方案是将不可导的地方soft成可导形式,从而获得soft_kendall,取1-soft_kendall作为loss。
 
-> kendall的计算过程如下：
-<img src="https://github.com/favicon.ico" width="48">
-> 1. 以表1为例，首先将预测向量按实际等级升序的顺序进行排序；
-> 2. 将预测的第一个数字2依次与右边的每个数字进行比较（共9次），大于第一个数字2则记+1分，小于2则-1分，总分为-1+8=7分；
-> 3. 再将第二个数字1依次与右边的8个数字进行比较，得到分数8；
-> 4. 以此类推，得到9个分数:7,8,7,2,5,4,1,0,1,总分35分；
-> 5. 如果所有的分数都为最大分数，9,8,7,6,5,4,3,2,1，则最大总分为45分；
->6. kendall = 实际得分/最大总分,即35/45 = 0.778;
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/kendall_example.png" width="3000">
 
-这个过程中的排序及计分过程均不可导，但排序操作可以仅针对真实标签，并不影响预测结果的可导性与反向传播，因此仅需解决计分过程的可导性。其中计分函数可以看作sign函数，比较结果>0 取1，比较结果<0 取-1，因此使用tanh，erf，sigmoid，softsign等类似的可导函对计分过程进行替换，便可以实现可导的soft kendall，以tanh为例的soft kendall如下，不同soft函数及其梯度的可视化见./fig/soft&grad.ipynb
+```
+kendall的计算过程如下：
+1. 以表1为例，首先将预测向量按实际等级升序的顺序进行排序；
+2. 将预测的第一个数字2依次与右边的每个数字进行比较（共9次），大于第一个数字2则记+1分，小于2则-1分，总分为-1+8=7分；
+3. 再将第二个数字1依次与右边的8个数字进行比较，得到分数8；
+4. 以此类推，得到9个分数:7,8,7,2,5,4,1,0,1,总分35分；
+5. 如果所有的分数都为最大分数，9,8,7,6,5,4,3,2,1，则最大总分为45分；
+6. kendall = 实际得分/最大总分,即35/45 = 0.778;
+```
+
+这个过程中的排序及计分过程均不可导，但排序操作可以仅针对真实标签，并不影响预测结果的可导性与反向传播，因此仅需解决计分过程的可导性。其中计分函数可以看作sign函数，比较结果>0 取1，比较结果<0 取-1，因此使用tanh，erf，sigmoid，softsign等类似的可导函对计分过程进行替换，便可以实现可导的soft kendall 
+
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="3000">
+
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="3000">
+
+以tanh为例的soft kendall如下，不同soft函数及其梯度的可视化见./fig/soft&grad.ipynb
 
 ```python
 # kendall的手动python实现
@@ -97,14 +112,15 @@ def soft_kendall(actuals, preds):
     return score1
 ```
 
-
->./loss文件夹下列出了建模过程中使用过的所有loss
+```
+./loss文件夹下列出了建模过程中使用过的所有loss
 其中基于tanh的soft kendall效果最好
 CVPRLoss:       使用1-pearson相关性作为loss;
 CVPRLoss1:      使用1-spearman rank相关性作为loss;
 CVPRLoss_tanh:  使用tanh改写的1-kendall rank相关性作为loss，for循环写法;
 CVPRLoss_tanh1: 使用tanh改写的1-kendall rank相关性作为loss，矩阵写法;
 CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
+```
 
 #### 2.2.2 模型结构
 
@@ -113,7 +129,8 @@ CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
 
 
 ## 使用方式
->分别运行
+```
+分别运行
 1_cvpr_lgb_score_ranker.ipynb
 2_cvpr_paddle_superlinear_score_ranker.ipynb
 3_cvpr_ohe_2lstm_4logits_weight_kednall_tanh1_decoder.ipynb
@@ -130,4 +147,4 @@ CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
 >注：
 >1. 其中1，2打分模型非常小，总计不超过10Mb;-->
 >2. 端到端模型单个模型400Mb左右，但任务中使用了5折训练，并在部分代码中分别保存了8个target的5折最优模型（即一次训练保存了40个模型文件），因此模型文件总计70Gb左右；
-
+```
