@@ -180,15 +180,15 @@ CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
 #### 2.2.2 模型结构
 rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LSTM 以及 transformer 编码器解码器, 具体使用了以下三种结构:
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model1.png" width="494" height="1117">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model1.png" width="356" height="782">
 </div>
 
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model2.png" width="649" height="977">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model2.png" width="454" height="684">
 </div>
     
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model3.png" width="833" height="1097">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model3.png" width="583" height="768">
 </div>
     
 
@@ -218,7 +218,7 @@ rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LS
 10_get_subf.ipynb 为模型融合部分, 输出2个提交, 2个提交均使用上述2个思路,5种模型,9次训练得到的9个sub进行融合。
 区别在于第一个提交对各目标的最优模型权重更大, 第二个提交按 最优:rank_loss:打分 = 4:4:2 进行权重分配。
 
-子模型中打分模型最高可做到0.793+, 但融合中仅用于提高模型的差异性, 因此分配了更低的权重, 并且为了保证没有过度拟合榜单, 最终使用的打分模型并未参考榜单结果使用最高分模型, 而是提取了0.791+和0.792+的两个前中期打分模型。
+子模型中打分模型最高可做到0.793+, 但融合中主要用于提高模型的差异性, 保证泛化能力, 因此分配了更低的权重, 并且为了保证没有过度拟合榜单, 最终使用的打分模型并未参考榜单结果使用最高分模型, 而是提取了0.791+和0.792+的两个前中期打分模型。
 
 最终的模型融合仅在最后一天进行了4次, 并未做大量数据试验, 不一定是最优权重。
 
