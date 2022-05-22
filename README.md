@@ -111,11 +111,11 @@ kendall的计算过程如下：
 不同soft函数及其梯度如下,相关代码在./fig/soft&grad.ipynb
 <div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="1000" height="600">
-<div/>
+</div>
     
 <div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="1000" height="600">
-<div/>
+</div>
     
 
 以tanh为例的soft kendall代码如下，
@@ -181,15 +181,15 @@ CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
 rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LSTM 以及 transformer 编码器解码器, 具体使用了以下三种结构:
 <div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model1.png" width="494" height="1117">
-<div/>
+</div>
 
 <div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model2.png" width="649" height="977">
-<div/>
+</div>
     
 <div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model3.png" width="833" height="1097">
-<div/>
+</div>
     
 
 ```
