@@ -92,8 +92,10 @@ def erfinv_trans(train_df, c):
 #### 2.2.1 rank loss设计
 rank关系是一类不可导的计算过程，评价任务性能的kendall也是其中之一，在本任务中将不可导的kendall设计为可导的形式尤为重要，我的解决方案是将不可导的地方soft成可导形式,从而获得soft_kendall,取1-soft_kendall作为loss。
 
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/kendall_example.png" width="3000">
-
+<div align=center>
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/kendall_example.png" width="1500">
+</div>
+    
 ```
 kendall的计算过程如下：
 1. 以表1为例，首先将预测向量按实际等级升序的顺序进行排序；
@@ -107,10 +109,14 @@ kendall的计算过程如下：
 这个过程中的排序及计分过程均不可导，但排序操作可以仅针对真实标签，并不影响预测结果的可导性与反向传播，因此仅需解决计分过程的可导性。其中计分函数可以看作sign函数，比较结果>0 取1，比较结果<0 取-1，因此使用tanh，erf，sigmoid，softsign等类似的可导函对计分过程进行替换，便可以实现可导的soft kendall 
 
 不同soft函数及其梯度如下,相关代码在./fig/soft&grad.ipynb
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="3000">
-
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="3000">
-
+<div align=center>
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="1500" height="900">
+<div/>
+    
+<div align=center>
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="1500" height="900">
+<div/>
+    
 以tanh为例的soft kendall代码如下，
 
 ```python
@@ -172,13 +178,18 @@ CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
 
 #### 2.2.2 模型结构
 rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LSTM 以及 transformer 编码器解码器, 具体使用了以下三种结构:
+<div align=center>
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model1.png" width="494" height="1117">
+<div/>
 
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model1.png" height="3000">
-
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model2.png" height="3000">
-
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model3.png" height="3000">
-
+<div align=center>
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model2.png" width="649" height="977">
+<div/>
+    
+<div align=center>
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model3.png" width="833" height="1097">
+<div/>
+    
 ```
 结构3模型:
 3_cvpr_ohe_2lstm_4logits_weight_kednall_tanh1_decoder.ipynb
