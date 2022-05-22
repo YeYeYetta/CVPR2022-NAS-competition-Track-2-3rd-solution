@@ -5,7 +5,7 @@
 ```
 使用机器学习回归法及深度学习端到端学习两种方案解决该问题.
 1. 机器学习回归打分法: 将任务看作回归任务, 建立回归预测模型再rank得到性能排序, 回归模型训练前使用逆误差函数将target转换为标准正态分布;
-2. 深度学习端到端法: 将不可导的rank相关性kendall设计成可导的soft形式, 使用 1 - soft_kendall 作为loss直接训练, 模型结构使用包含稠密层的Bi-LSTM及transformer encoder, decoder;
+2. 深度学习端到端法: 将不可导的rank相关性kendall设计成可导的soft形式, 使用 1 - soft_kendall 作为loss直接训练, 模型结构使用包含稠密层的Bi-LSTM以及transformer encoder, decoder;
 2种方法共计9次训练, 得到9个sub文件, 简单加权融合后获得最终结果
 ```
 
@@ -186,7 +186,7 @@ CVPRLoss_pair： 使用huawei-noah定义的一种rank loss作为loss；
 ```
 
 #### 2.2.2 模型结构
-rank loss 建模时将输入看作长度为37的序列, 模型结构基于 Bi-LSTM 以及 transformer 编码器解码器, 具体使用了以下三种结构:
+rank loss 建模时将输入看作长度为37的序列, 模型结构基于 包含稠密层的Bi-LSTM 以及 transformer 编码器解码器, 具体使用了以下三种结构:
 <div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/model1.png" width="356" height="782">
 </div>
