@@ -69,12 +69,12 @@ def erfinv_trans(train_df, c):
 
 标签的原始分布:
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_ori.png" width="500" height="500">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_ori.png" width="500" height="400">
 </div>
 
 标签逆误差函数转换后的分布:
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_erfinv_trans.png" width="500" height="500">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/target_erfinv_trans.png" width="500" height="400">
 </div>
 
 ```
@@ -93,7 +93,7 @@ def erfinv_trans(train_df, c):
 rank关系是一类不可导的计算过程，评价任务性能的kendall也是其中之一，在本任务中将不可导的kendall设计为可导的形式尤为重要，我的解决方案是将不可导的地方soft成可导形式,从而获得soft_kendall,取1-soft_kendall作为loss。
 
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/kendall_example.png" width="1500">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/kendall_example.png" width="793" height="72">
 </div>
     
 ```
@@ -110,11 +110,11 @@ kendall的计算过程如下：
 
 不同soft函数及其梯度如下,相关代码在./fig/soft&grad.ipynb
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="1500" height="900">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/softcurves.png" width="1000" height="600">
 <div/>
     
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="1500" height="900">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/grad_of_softcurves.png" width="1000" height="600">
 <div/>
     
 以tanh为例的soft kendall代码如下，
