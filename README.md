@@ -39,6 +39,7 @@
 7_lstm2y_catall_pair_sig.ipynb
 8_lstm2y_catall_tanh1_sig.ipynb
 9_ohe_lstm2y_catall_tanh1_sig.ipynb
+10_get_subf.ipynb
 README.md
 requirements.txt
 ```
@@ -244,7 +245,7 @@ rank loss 建模时将输入看作长度为37的序列, 模型结构基于 包�
 8_lstm2y_catall_tanh1_sig.ipynb
 9_ohe_lstm2y_catall_tanh1_sig.ipynb
 得到9个模型及其预测结果;
-运行10_get_subf.ipynb 得到最终提交的2个输出
+然后运行10_get_subf.ipynb 得到最终提交的2个输出
 其中模型存在./model；预测结果存在./sub
 
 >注：
