@@ -100,7 +100,7 @@ def erfinv_trans(train_df, c):
 基于回归的打分法旨在降低预测分数和实际分数的差异, 但在神经网络结构搜索中, 准确预测出不同网络结构的性能相对高低比降低分数的差异更为重要, 比如两个结构的实际预测精度分别是0.6和0.7,在回归任务中预测结果0.7和0.8的loss和预测为0.7和0.6的loss完全相同, 但显然后一个预测颠倒了两个结构性能的高低排序, 属于失败的预测. 因此基于回归的打分法实际上并不能很好的解决该问题，而深度学习的一大优势便是可以端到端学习，可使用端到端的思路将神经网络结构编码至高维空间，再直接解码为排序高低关系。
 
 #### 2.2.1 rank loss设计
-rank关系是一类不可导的计算过程，评价任务性能的kendall也是其中之一，在本任务中将不可导的kendall设计为可导的形式尤为重要，我的解决方案是将不可导的地方做soft处理, 而获得可导的 soft_kendall, 最后1-soft_kendall作为loss进行训练。
+rank关系是一类不可导的计算过程，评价任务性能的kendall也是其中之一，在本任务中将不可导的kendall设计为可导的形式尤为重要，我的解决方案是将不可导的地方做soft处理, 从而获得可导的 soft_kendall, 最后使用1-soft_kendall作为loss进行训练。
 
 <div align=center>
 <img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/kendall_example.png" width="793" height="72">
@@ -221,7 +221,9 @@ rank loss 建模时将输入看作长度为37的序列, 模型结构基于 包�
 8_lstm2y_catall_tanh1_sig.ipynb 为 使用huawei-noah的pair loss,取8目标交叉验证时单目标最优;
 9_ohe_lstm2y_catall_tanh1_sig.ipynb 为 矩阵写法的tanh soft kendall loss,取8目标交叉验证时单目标最优, 输入为one-hot的序列, 500*37*93
 
-基于rank loss的各模型分数介于0.792-0.795不等
+基于rank loss的各模型分数介于0.792-0.795不等.
+
+打分法模型及rank loss模型均无任何手工特征, 特征工程角度仅使用到编码的one-hot.
 ```
 
 ### 2.3 模型融合
