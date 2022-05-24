@@ -103,7 +103,7 @@ def erfinv_trans(train_df, c):
 rank关系是一类不可导的计算过程，评价任务性能的kendall也是其中之一，在本任务中将不可导的kendall设计为可导的形式尤为重要，我的解决方案是将不可导的地方做soft处理, 从而获得可导的 soft_kendall, 最后使用1-soft_kendall作为loss进行训练。
 
 <div align=center>
-<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/kendall_example.png" width="793" height="72">
+<img src="https://github.com/YeYeYetta/CVPR2022-NAS-competition-Track-2-3rd-solution/blob/main/fig/kendall_exp.png" width="793" height="72">
 </div>
     
 ```
